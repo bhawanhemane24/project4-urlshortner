@@ -6,4 +6,5 @@ router.post("/url/shorten", urlController.createShortUrl);
 
 router.get("/:urlCode", urlController.getUrl);
 
+
 module.exports = router;

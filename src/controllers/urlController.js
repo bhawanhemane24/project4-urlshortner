@@ -24,9 +24,9 @@ redisClient.on("connect", async function () {
 const SET_ASYNC = promisify(redisClient.SET).bind(redisClient);
 const GET_ASYNC = promisify(redisClient.GET).bind(redisClient);
 
-// redisClient.flushdb(function (err, succeeded) {
-//   console.log(succeeded); // will be true if successfull
-// });
+//  redisClient.flushdb(function (err, succeeded) {
+//    console.log(succeeded); // will be true if successfull
+//  });
 
 // Validataion for empty request body
 const checkBodyParams = function (value) {
@@ -64,17 +64,17 @@ const createShortUrl = async function (req, res) {
         .send({ status: false, message: "Long url is in wrong format" });
     }
 
-    let found = false; // Using axios to check for correct longurl
-    await axios
-      .get(longUrl)
-      .then((response) => {
-        if (response.status == 200 || response.status == 201) found = true;
-      })
-      .catch((err) => {});
+    // let found = false; // Using axios to check for correct longurl
+    // await axios
+    //   .get(longUrl)
+    //   .then((response) => {
+    //     if (response.status == 200 || response.status == 201) found = true;
+    //   })
+    //   .catch((err) => {});
 
-    if (!found) {
-      return res.status(400).send({ status: false, message: "Wrong url" });
-    }
+    // if (!found) {
+    //   return res.status(400).send({ status: false, message: "Wrong url" });
+    // }
 
     let responseMessage = "Success";
     let cahcedProfileData = await GET_ASYNC(`${req.body.longUrl}`);
@@ -92,7 +92,7 @@ const createShortUrl = async function (req, res) {
       } else {
         data.urlCode = urlDetails.urlCode;
         data.shortUrl = urlDetails.shortUrl;
-        responseMessage = "Short url already generated";
+        responseMessage = "Short url already generated in db";
       }
       await SET_ASYNC(`${req.body.longUrl}`, JSON.stringify({ data }));
     }
@@ -123,9 +123,8 @@ const getUrl = async function (req, res) {
     if (cahcedProfileData) {
       return res.redirect(JSON.parse(cahcedProfileData).longUrl);
     } else {
-      let originalUrl = await urlModel
-        .findOne({ urlCode: urlCode })
-        .select({ longUrl: 1, _id: 0 });
+      let originalUrl = await urlModel.findOne({ urlCode })
+        
       if (originalUrl) {
         await SET_ASYNC(`${req.params.urlCode}`, JSON.stringify(originalUrl));
         return res.redirect(originalUrl.longUrl);
